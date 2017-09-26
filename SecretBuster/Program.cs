@@ -14,6 +14,7 @@ namespace SecretBuster
             string knownHash;
             string username;
             string email;
+            string date;
 
             Console.Write("Enter the username: ");
             username = Console.ReadLine();
@@ -21,12 +22,15 @@ namespace SecretBuster
             Console.Write("Enter the email: ");
             email = Console.ReadLine();
 
+            Console.Write("Enter the date (DDMM): ");
+            date = Console.ReadLine();
+
             Console.Write("Enter the hash: ");
             knownHash = Console.ReadLine();
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            BruteForceSecret(username, email, knownHash, Int32.MinValue, Int32.MaxValue);
+            BruteForceSecret(username, email, date, knownHash, Int32.MinValue, Int32.MaxValue);
             sw.Stop();
             Console.WriteLine("Elapsed Time: {0:00}:{1:00}:{2:00}.{3:00}", sw.Elapsed.Hours, sw.Elapsed.Minutes, sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
 
@@ -60,7 +64,7 @@ namespace SecretBuster
             return stringBuilder.ToString();
         }
 
-        private static bool BruteForceSecret(string username, string email, string knownHash, int startSeed = 0, int endSeed = Int32.MaxValue)
+        private static bool BruteForceSecret(string username, string email, string date, string knownHash, int startSeed = Int32.MinValue, int endSeed = Int32.MaxValue)
         {
             string useremail = username + email;
             long progress = 0;
@@ -68,7 +72,7 @@ namespace SecretBuster
             Parallel.For(startSeed, endSeed, new ParallelOptions { MaxDegreeOfParallelism = 8 }, (int x, ParallelLoopState loopState) =>
             {
                 string code = GenerateRandomCode(20, x);
-                string calcHash = MD5Hash(useremail + code);
+                string calcHash = MD5Hash(useremail + code + date);
                 //Console.WriteLine("seed: {0}\tcode: {1}\thash: {2}", x, code, calcHash);
                 Interlocked.Increment(ref progress);
                 if (progress % 1000000 == 0)
